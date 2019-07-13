@@ -1,0 +1,21 @@
+{
+  "name": "error-handling-like-go",
+  "version": "1.0.0",
+  "description": "`if err != nil`",
+  "main": "index.js",
+  "scripts": {
+    "test": "jest test.ts",
+    "start": "tsc --watch"
+  },
+  "devDependencies": {
+    "@types/jest": "^24.0.13",
+    "jest": "^24.8.0",
+    "ts-jest": "^24.0.2",
+    "typescript": "^3.4.3"
+  },
+  "dependencies": {
+    "@types/node": "^12.0.2"
+  },
+  "author": "",
+  "license": "ISC"
+}
