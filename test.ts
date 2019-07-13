@@ -73,7 +73,11 @@ describe('asyncCallWithCheckedError', () => {
 
   test('should catch async error', async () => {
     const result = await asyncCallWithCheckedError(() => {
-      return Promise.reject(new Error(`error`))
+      return new Promise((resolve, reject) => {
+        setTimeout(() => {
+          reject(new Error('promise reject'))
+        }, 1000)
+      })
     })
     expect(result.error).not.toBe(nil)
   })
