@@ -41,6 +41,7 @@ export type ResultWithCheckedError<T> =
       returnValue: T
     }
   | {
-      error: any
+      // 因为可以 throw 任何值
+      error: string | number | boolean | object | undefined | null
       returnValue: undefined
     }
