@@ -19,3 +19,10 @@ const value2 = call<object>(
 ).unwrapOr({});
 console.log(value1);
 console.log(value2);
+
+const { value: parsed = {} } = call<object>(JSON.parse.bind(this, '\\'));
+
+console.log(parsed);
+const value5 = call<object, Error>(JSON.parse.bind(this, '\\')).unwrapOrElse(
+  err => (console.log(err), {})
+);

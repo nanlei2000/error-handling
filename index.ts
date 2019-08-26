@@ -29,12 +29,18 @@ export const call = <V extends any, E = ErrorTypes>(
       error: nil,
       value: value,
       unwrapOr: genUnwrapOrOkHandle(value),
+      unwrapOrElse: (cb: UnwrapOrElseCallback<E, V>) => {
+        return value;
+      },
     };
   } catch (error) {
     return {
       error: error as E,
       value: undefined,
       unwrapOr: genUnwrapOrErrorHandle<V, E>(error),
+      unwrapOrElse: (cb: UnwrapOrElseCallback<E, V>) => {
+        return cb(error);
+      },
     };
   }
 };
@@ -48,28 +54,37 @@ export const callAsync = async <V extends any, E = ErrorTypes>(
       error: nil,
       value: value,
       unwrapOr: genUnwrapOrOkHandle(value),
+      unwrapOrElse: (cb: UnwrapOrElseCallback<E, V>) => {
+        return value;
+      },
     };
   } catch (error) {
     return {
       error: error as E,
       value: undefined,
       unwrapOr: genUnwrapOrErrorHandle<V, E>(error),
+      unwrapOrElse: (cb: UnwrapOrElseCallback<E, V>) => {
+        return cb(error);
+      },
     };
   }
 };
 
 export const nil = Symbol('nil');
+// 因为可以 throw 任何值
 type ErrorTypes = string | number | boolean | object | undefined | null;
 type UnwrapOr<V> = (value: V, errorTitle?: string) => V;
+type UnwrapOrElseCallback<E, V> = (error: E) => V;
+type UnwrapOrElse<V, E> = (callback: UnwrapOrElseCallback<E, V>) => V;
 export type Result<V, E = ErrorTypes> = (
   | {
       error: typeof nil;
       value: V;
     }
   | {
-      // 因为可以 throw 任何值
       error: E;
       value: undefined;
     }) & {
   unwrapOr: UnwrapOr<V>;
+  unwrapOrElse: UnwrapOrElse<V, E>;
 };
