@@ -9,13 +9,13 @@ import * as assert from 'assert';
       }, 1000);
     });
   });
-  const value = res.unwrapOrDefault(1, '出错了!!');
+  const value = res.unwrapOr(1, '出错了!!');
   console.log('🤓🤔😓: value', value);
 })();
 
-const value1 = call<object>(JSON.parse.bind(this, '\\')).unwrapOrDefault({});
+const value1 = call<object>(JSON.parse.bind(this, '\\')).unwrapOr({});
 const value2 = call<object>(
   JSON.parse.bind(this, '{"hello":"world"}')
-).unwrapOrDefault({});
+).unwrapOr({});
 console.log(value1);
 console.log(value2);

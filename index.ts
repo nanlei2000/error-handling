@@ -1,6 +1,6 @@
-const genUnwrapOrDefaultErrorHandle = <V extends any, E = ErrorTypes>(
+const genUnwrapOrErrorHandle = <V extends any, E = ErrorTypes>(
   error: E
-): UnwrapOrDefault<V> => {
+): UnwrapOr<V> => {
   return (defaultValue: V, errorTitle?: string) => {
     console.error(
       `${errorTitle ||
@@ -10,9 +10,7 @@ const genUnwrapOrDefaultErrorHandle = <V extends any, E = ErrorTypes>(
     return defaultValue;
   };
 };
-const genUnwrapOrDefaultOkHandle = <V extends any>(
-  value: V
-): UnwrapOrDefault<V> => {
+const genUnwrapOrOkHandle = <V extends any>(value: V): UnwrapOr<V> => {
   return (_defaultValue: V, _errorTitle?: string) => {
     return value;
   };
@@ -30,13 +28,13 @@ export const call = <V extends any, E = ErrorTypes>(
     return {
       error: nil,
       value: value,
-      unwrapOrDefault: genUnwrapOrDefaultOkHandle(value),
+      unwrapOr: genUnwrapOrOkHandle(value),
     };
   } catch (error) {
     return {
       error: error as E,
       value: undefined,
-      unwrapOrDefault: genUnwrapOrDefaultErrorHandle<V, E>(error),
+      unwrapOr: genUnwrapOrErrorHandle<V, E>(error),
     };
   }
 };
@@ -49,20 +47,20 @@ export const callAsync = async <V extends any, E = ErrorTypes>(
     return {
       error: nil,
       value: value,
-      unwrapOrDefault: genUnwrapOrDefaultOkHandle(value),
+      unwrapOr: genUnwrapOrOkHandle(value),
     };
   } catch (error) {
     return {
       error: error as E,
       value: undefined,
-      unwrapOrDefault: genUnwrapOrDefaultErrorHandle<V, E>(error),
+      unwrapOr: genUnwrapOrErrorHandle<V, E>(error),
     };
   }
 };
 
 export const nil = Symbol('nil');
 type ErrorTypes = string | number | boolean | object | undefined | null;
-type UnwrapOrDefault<V> = (value: V, errorTitle?: string) => V;
+type UnwrapOr<V> = (value: V, errorTitle?: string) => V;
 export type Result<V, E = ErrorTypes> = (
   | {
       error: typeof nil;
@@ -73,5 +71,5 @@ export type Result<V, E = ErrorTypes> = (
       error: E;
       value: undefined;
     }) & {
-  unwrapOrDefault: UnwrapOrDefault<V>;
+  unwrapOr: UnwrapOr<V>;
 };
