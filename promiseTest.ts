@@ -26,3 +26,13 @@ console.log(parsed);
 const value5 = call<object, Error>(JSON.parse.bind(this, '\\')).unwrapOrElse(
   err => (console.log(err), {})
 );
+const object: {
+  a?: {
+    b?: {
+      c?: string;
+    };
+  };
+} = {};
+
+const value = call(() => object!.a!.b!.c!).unwrapOr('ok'); // ok;
+console.log('🤓🤔😓: value', value);
