@@ -1,5 +1,5 @@
 # error-handling
-
+[![npm version](https://badge.fury.io/js/%40nanlei%2Ferror-handling.svg)](https://badge.fury.io/js/%40nanlei%2Ferror-handling)
 - [rust: unwrap_or(),unwrap_or_else()](https://learning-rust.github.io/docs/e4.unwrap_and_expect.html)
 
 ### example
