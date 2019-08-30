@@ -1,21 +1,33 @@
 {
-  "name": "error-handling-like-go",
+  "name": "error-handling",
   "version": "1.0.0",
-  "description": "`if err != nil`",
-  "main": "index.js",
+  "description": "functional error handling like go and rust",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "dependencies": {},
   "scripts": {
-    "test": "jest test.ts",
-    "start": "tsc --watch"
+    "test": "jest ./test/test.ts",
+    "start": "tsc --watch",
+    "build": "tsc"
   },
   "devDependencies": {
     "@types/jest": "^24.0.13",
     "jest": "^24.8.0",
     "ts-jest": "^24.0.2",
-    "typescript": "^3.4.3"
-  },
-  "dependencies": {
+    "typescript": "^3.4.3",
     "@types/node": "^12.0.2"
   },
-  "author": "",
-  "license": "ISC"
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nanlei2000/error-handling.git"
+  },
+  "keywords": [
+    "error handling"
+  ],
+  "author": "nanlei2000",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/nanlei2000/error-handling/issues"
+  },
+  "homepage": "https://github.com/nanlei2000/error-handling#readme"
 }

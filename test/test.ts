@@ -1,4 +1,4 @@
-import { call, nil, callAsync } from './index';
+import { call, nil, callAsync } from '../src/index';
 describe('callWithCheckedError', () => {
   test('should get nil', () => {
     const result = call(() => {

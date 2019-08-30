@@ -1,4 +1,4 @@
-import { nil, Result, callAsync, call } from './index';
+import { nil, Result, callAsync, call } from '../src/index';
 import * as assert from 'assert';
 
 (async () => {
