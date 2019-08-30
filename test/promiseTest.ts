@@ -1,6 +1,26 @@
 import { nil, Result, callAsync, call } from '../src/index';
 import * as assert from 'assert';
 
+const res: Result<number, Error> = call(() => JSON.parse('\\'));
+
+if (res.error !== nil) {
+  // value is `undefined` here
+  console.error(res.error);
+} else {
+  // value is `number` here
+  console.log(res.value);
+}
+
+function mayFail(): Result<number, Error> {
+  return call(() => {
+    if (Math.random() < 0.5) {
+      return 0;
+    } else {
+      throw new Error('too big');
+    }
+  });
+}
+
 (async () => {
   const res = await callAsync<number, Error>(() => {
     return new Promise((resolve, reject) => {
