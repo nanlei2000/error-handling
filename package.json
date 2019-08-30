@@ -29,5 +29,8 @@
   "bugs": {
     "url": "https://github.com/nanlei2000/error-handling/issues"
   },
-  "homepage": "https://github.com/nanlei2000/error-handling#readme"
+  "homepage": "https://github.com/nanlei2000/error-handling#readme",
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com/"
+  }
 }
