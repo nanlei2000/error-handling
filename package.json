@@ -1,5 +1,5 @@
 {
-  "name": "error-handling",
+  "name": "@nanlei/error-handling",
   "version": "1.0.0",
   "description": "functional error handling like go and rust",
   "main": "dist/index.js",
@@ -31,6 +31,6 @@
   },
   "homepage": "https://github.com/nanlei2000/error-handling#readme",
   "publishConfig": {
-    "registry": "https://npm.pkg.github.com/"
+    "registry": "http://registry.npmjs.org/"
   }
 }
