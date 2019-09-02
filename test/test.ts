@@ -65,3 +65,45 @@ describe('asyncCallWithCheckedError', () => {
     expect(result.error).toBe(nil);
   });
 });
+describe(`unwrapOr`, () => {
+  test(`sync`, () => {
+    const res1 = call(() => 1).unwrapOr(0);
+    const res2 = call<number>(() => JSON.parse('\\')).unwrapOr(0);
+    expect(res1).toBe(1);
+    expect(res2).toBe(0);
+  });
+  test(`async`, async () => {
+    const res1 = (await callAsync(() => Promise.resolve(1))).unwrapOr(0);
+    const res2 = (await callAsync<number>(() =>
+      Promise.resolve(JSON.parse('\\'))
+    )).unwrapOr(0);
+    expect(res1).toBe(1);
+    expect(res2).toBe(0);
+  });
+});
+describe(`unwrapOrElse`, () => {
+  test(`sync`, () => {
+    const res1 = call(() => 1).unwrapOrElse(e => {
+      return 0;
+    });
+    const res2 = call<number>(() => JSON.parse('\\')).unwrapOrElse(e => {
+      return 0;
+    });
+    expect(res1).toBe(1);
+    expect(res2).toBe(0);
+  });
+  test(`async`, async () => {
+    const res1 = (await callAsync(() => Promise.resolve(1))).unwrapOrElse(e => {
+      console.log(`never`);
+      return 0;
+    });
+    const res2 = (await callAsync<number, Error>(() =>
+      Promise.resolve(JSON.parse('\\'))
+    )).unwrapOrElse(e => {
+      console.log(e.message);
+      return 0;
+    });
+    expect(res1).toBe(1);
+    expect(res2).toBe(0);
+  });
+});
