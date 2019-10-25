@@ -77,8 +77,12 @@ describe(`unwrapOr`, () => {
     const res2 = (await callAsync<number>(() =>
       Promise.resolve(JSON.parse('\\'))
     )).unwrapOr(0);
+    const res3 = await callAsync(() => Promise.resolve(JSON.parse('\\'))).then(
+      v => v.unwrapOr(0)
+    );
     expect(res1).toBe(1);
     expect(res2).toBe(0);
+    expect(res3).toBe(0);
   });
 });
 describe(`unwrapOrElse`, () => {
