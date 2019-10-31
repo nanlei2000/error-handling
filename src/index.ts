@@ -1,20 +1,33 @@
-const genUnwrapOrErrorHandle = <V extends any, E = ErrorTypes>(
-  error: E
-): UnwrapOr<V> => {
-  return (defaultValue: V, errorTitle?: string) => {
-    console.error(
-      `${errorTitle ||
-        ''}\nError occurred,default value \n ${defaultValue} \n is used instead \n`,
-      error
-    );
-    return defaultValue;
+function genLeft<V extends any, E = ErrorTypes>(value: V): Result<V, E> {
+  return {
+    error: nil,
+    value: value,
+    unwrapOr: (_defaultValue: V, _errorTitle?: string) => {
+      return value;
+    },
+    unwrapOrElse: (_cb: UnwrapOrElseCallback<E, V>) => {
+      return value;
+    },
   };
-};
-const genUnwrapOrOkHandle = <V extends any>(value: V): UnwrapOr<V> => {
-  return (_defaultValue: V, _errorTitle?: string) => {
-    return value;
+}
+
+function genRight<V extends any, E = ErrorTypes>(error: any): Result<V, E> {
+  return {
+    error: error as E,
+    value: undefined,
+    unwrapOr: (defaultValue: V, errorTitle?: string) => {
+      console.error(
+        `${errorTitle ||
+          ''}\nError occurred,default value \n ${defaultValue} \n is used instead \n`,
+        error
+      );
+      return defaultValue;
+    },
+    unwrapOrElse: (cb: UnwrapOrElseCallback<E, V>) => {
+      return cb(error);
+    },
   };
-};
+}
 
 /**
  * @param callback 待执行的函数
@@ -25,23 +38,9 @@ export const call = <V extends any, E = ErrorTypes>(
 ): Result<V, E> => {
   try {
     const value = callback();
-    return {
-      error: nil,
-      value: value,
-      unwrapOr: genUnwrapOrOkHandle(value),
-      unwrapOrElse: (cb: UnwrapOrElseCallback<E, V>) => {
-        return value;
-      },
-    };
+    return genLeft<V, E>(value);
   } catch (error) {
-    return {
-      error: error as E,
-      value: undefined,
-      unwrapOr: genUnwrapOrErrorHandle<V, E>(error),
-      unwrapOrElse: (cb: UnwrapOrElseCallback<E, V>) => {
-        return cb(error);
-      },
-    };
+    return genRight<V, E>(error);
   }
 };
 
@@ -50,23 +49,9 @@ export const callAsync = async <V extends any, E = ErrorTypes>(
 ): Promise<Result<V, E>> => {
   try {
     const value = await callback();
-    return {
-      error: nil,
-      value: value,
-      unwrapOr: genUnwrapOrOkHandle(value),
-      unwrapOrElse: (cb: UnwrapOrElseCallback<E, V>) => {
-        return value;
-      },
-    };
+    return genLeft<V, E>(value);
   } catch (error) {
-    return {
-      error: error as E,
-      value: undefined,
-      unwrapOr: genUnwrapOrErrorHandle<V, E>(error),
-      unwrapOrElse: (cb: UnwrapOrElseCallback<E, V>) => {
-        return cb(error);
-      },
-    };
+    return genRight<V, E>(error);
   }
 };
 
