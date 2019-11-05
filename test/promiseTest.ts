@@ -1,4 +1,4 @@
-import { Result, callAsync, call, Ok, Err } from '../src/index';
+import { Result, tryCatch, Ok, Err } from '../src/index';
 import * as assert from 'assert';
 
 const res: Result<number, Error> = call(() => JSON.parse('\\'));
@@ -12,7 +12,7 @@ if (res.isErr !== false) {
 }
 
 function mayFail(): Result<number, Error> {
-  return call(() => {
+  return tryCatch(() => {
     if (Math.random() < 0.5) {
       return 0;
     } else {
@@ -22,8 +22,8 @@ function mayFail(): Result<number, Error> {
 }
 
 (async () => {
-  const res = await callAsync<number, Error>(
-    new Promise((resolve, reject) => {
+  const res = await tryCatch<number, Error>(
+    new Promise<never>((resolve, reject) => {
       setTimeout(() => {
         reject(new Error('promise reject'));
       }, 1000);
@@ -33,18 +33,18 @@ function mayFail(): Result<number, Error> {
   console.log('🤓🤔😓: value', value);
 })();
 
-const value1 = call<object>(JSON.parse.bind(this, '\\')).unwrapOr({});
-const value2 = call<object>(
+const value1 = tryCatch<object>(JSON.parse.bind(this, '\\')).unwrapOr({});
+const value2 = tryCatch<object>(
   JSON.parse.bind(this, '{"hello":"world"}')
 ).unwrapOr({});
 console.log(value1);
 console.log(value2);
 
-const parsed = call<object>(JSON.parse.bind(this, '\\')).unwrapOr({});
+const parsed = tryCatch<object>(JSON.parse.bind(this, '\\')).unwrapOr({});
 console.log(parsed);
-const value5 = call<object, Error>(JSON.parse.bind(this, '\\')).unwrapOrElse(
-  err => (console.log(err), {})
-);
+const value5 = tryCatch<object, Error>(
+  JSON.parse.bind(this, '\\')
+).unwrapOrElse(err => (console.log(err), {}));
 const object: {
   a?: {
     b?: {
@@ -53,7 +53,7 @@ const object: {
   };
 } = {};
 
-const value = call(() => object!.a!.b!.c!).unwrapOr('ok'); // ok;
+const value = tryCatch(() => object!.a!.b!.c!).unwrapOr('ok'); // ok;
 console.log('🤓🤔😓: value', value);
 
 Ok(1).unwrapOr(2);

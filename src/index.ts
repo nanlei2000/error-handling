@@ -44,8 +44,8 @@ export function Err<V extends any, E = any>(error: any): Err<V, E> {
 const isFunction = (val: unknown): val is Function => typeof val === 'function';
 
 type CaseHandle<E, V> = (handles: {
-  Ok?: (value: V) => void;
-  Err: (err: E) => void;
+  Ok?: (value: V) => unknown;
+  Err: (err: E) => unknown;
 }) => Result<V, E>;
 
 /**
@@ -95,3 +95,9 @@ type UnwrapOr<V> = (value: V, errorTitle?: string) => V;
 type UnwrapOrElseCallback<E, V> = (error: E) => V;
 type UnwrapOrElse<V, E> = (callback: UnwrapOrElseCallback<E, V>) => V;
 export type Result<V, E> = Ok<V> | Err<V, E>;
+
+export const parseJSON = <V>(str: string): Result<V, Error> =>
+  tryCatch(() => JSON.parse(str));
+
+export const stringifyJSON = (value: any): Result<string, Error> =>
+  tryCatch(() => JSON.stringify(value));

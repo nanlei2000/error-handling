@@ -1,6 +1,15 @@
-import { tryCatch, Match, Ok, Err, Result } from '../src/index';
+import {
+  tryCatch,
+  Match,
+  Ok,
+  Err,
+  Result,
+  parseJSON,
+  stringifyJSON,
+} from '../src/index';
 import * as Rx from 'rxjs';
 import { catchError } from 'rxjs/operators';
+import { noop } from '@babel/types';
 describe('callWithCheckedError', () => {
   test('should get nil', () => {
     const result = tryCatch(() => {
@@ -94,6 +103,38 @@ describe('Work with rxjs', () => {
         Ok: value => expect(value).toBe(2),
         Err: err => console.log(err.message),
       });
+    });
+  });
+});
+describe('Deal with JSON', () => {
+  test('parse', () => {
+    const res1 = parseJSON('//');
+    const res2 = parseJSON<object>(JSON.stringify({ a: 1 }));
+    Match(res1)({
+      Err: err => {
+        console.log('→: err', err.message);
+        expect(err).toBeInstanceOf(Error);
+      },
+    });
+    Match(res2)({
+      Err: noop,
+      Ok: value => expect(value).toEqual({ a: 1 }),
+    });
+  });
+  test('stringify', () => {
+    const res1 = stringifyJSON({ a: 1 });
+    var badObj: any = { a: 1 };
+    badObj.b = badObj;
+    const res2 = stringifyJSON(badObj);
+    Match(res1)({
+      Err: noop,
+      Ok: value => expect(value).toEqual(JSON.stringify({ a: 1 })),
+    });
+    Match(res2)({
+      Err: err => {
+        console.log(err.message);
+        expect(err).toBeInstanceOf(Error);
+      },
     });
   });
 });
