@@ -1,8 +1,12 @@
-type Ok<V extends any> = Result<V, never>;
-
+interface Ok<V> {
+  isErr: false;
+  value: V;
+  unwrapOr: UnwrapOr<V>;
+  unwrapOrElse: UnwrapOrElse<V, never>;
+}
 export function Ok<V extends any>(value: V): Ok<V> {
   return {
-    isErr: false,
+    isErr: false as false,
     value: value,
     unwrapOr: (_defaultValue: V, _errorTitle?: string) => {
       return value;
@@ -12,13 +16,17 @@ export function Ok<V extends any>(value: V): Ok<V> {
     },
   };
 }
-
-type Err<V extends any, E> = Result<V, E>;
+interface Err<V, E> {
+  error: E;
+  isErr: true;
+  unwrapOr: UnwrapOr<V>;
+  unwrapOrElse: UnwrapOrElse<V, E>;
+}
 
 export function Err<V extends any, E = any>(error: any): Err<V, E> {
   return {
     error: error as E,
-    isErr: true,
+    isErr: true as true,
     unwrapOr: (defaultValue: V, errorTitle?: string) => {
       console.error(
         `${errorTitle ||
@@ -33,60 +41,57 @@ export function Err<V extends any, E = any>(error: any): Err<V, E> {
   };
 }
 
-type Callbacks<E, V> = (callbacks: {
+const isFunction = (val: unknown): val is Function => typeof val === 'function';
+
+type CaseHandle<E, V> = (handles: {
   Ok?: (value: V) => void;
-  Err?: (err: E) => void;
+  Err: (err: E) => void;
 }) => Result<V, E>;
 
-export function Match<V, E>(res: Result<V, E>): Callbacks<E, V> {
-  const func: Callbacks<E, V> = callbacks => {
+/**
+ *
+ * @param res Result
+ * @description 辅助函数,模拟`pattern match`
+ */
+export function Match<V, E>(res: Result<V, E>): CaseHandle<E, V> {
+  const func: CaseHandle<E, V> = handles => {
     if (res.isErr) {
-      callbacks.Err && callbacks.Err(res.error);
+      handles.Err(res.error);
     } else {
-      callbacks.Ok && callbacks.Ok(res.value);
+      handles.Ok && handles.Ok(res.value);
     }
     return res;
   };
   return func;
 }
 /**
- * @param callback 待执行的函数
- * @description 使用值来处理错误
+ *
+ * @param func Function may throw
  */
-export const call = <V extends any, E = any>(
-  callback: () => V
-): Result<V, E> => {
-  try {
-    const value = callback();
-    return Ok<V>(value);
-  } catch (error) {
-    return Err<V, E>(error);
+export function tryCatch<V extends any, E = any>(func: () => V): Result<V, E>;
+/**
+ *
+ * @param promise Promise may reject
+ */
+export function tryCatch<V extends any, E = any>(
+  promise: Promise<V>
+): Promise<Result<V, E>>;
+export function tryCatch<V extends any, E = any>(
+  funcOrPromise: (() => V) | Promise<V>
+): Result<V, E> | Promise<Result<V, E>> {
+  if (isFunction(funcOrPromise)) {
+    try {
+      const value = funcOrPromise();
+      return Ok<V>(value);
+    } catch (error) {
+      return Err<V, E>(error);
+    }
+  } else {
+    return funcOrPromise.then(v => Ok<V>(v)).catch(err => Err<V, E>(err));
   }
-};
-
-export const callAsync = async <V extends any, E = any>(
-  task: PromiseLike<V>
-): Promise<Result<V, E>> => {
-  try {
-    const value = await task;
-    return Ok<V>(value);
-  } catch (error) {
-    return Err<V, E>(error);
-  }
-};
+}
 
 type UnwrapOr<V> = (value: V, errorTitle?: string) => V;
 type UnwrapOrElseCallback<E, V> = (error: E) => V;
 type UnwrapOrElse<V, E> = (callback: UnwrapOrElseCallback<E, V>) => V;
-export type Result<V, E = any> = (
-  | {
-      isErr: false;
-      value: V;
-    }
-  | {
-      isErr: true;
-      error: E;
-    }) & {
-  unwrapOr: UnwrapOr<V>;
-  unwrapOrElse: UnwrapOrElse<V, E>;
-};
+export type Result<V, E> = Ok<V> | Err<V, E>;

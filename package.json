@@ -4,7 +4,10 @@
   "description": "functional error handling like go and rust",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
-  "dependencies": {},
+  "dependencies": {
+    "fp-ts": "^2.1.1",
+    "rxjs": "^6.5.3"
+  },
   "scripts": {
     "test": "jest ./test/test.ts",
     "start": "tsc --watch",
