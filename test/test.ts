@@ -37,17 +37,17 @@ describe('callWithCheckedError', () => {
   });
 
   test('can throw `undefined`', () => {
-    const result = tryCatch(() => {
+    const result = tryCatch<never, undefined>(() => {
       throw undefined;
     });
-    expect(result.isErr).not.toBe(false);
+    Match(result)({
+      Err: err => expect(err).toBe(undefined),
+    });
   });
 
-  test('should not catch async error', () => {
-    const result = tryCatch(() => {
-      return Promise.reject('1');
-    });
-    expect(result.isErr).toBe(false);
+  test('should catch async error', async () => {
+    const result = await tryCatch(Promise.reject(1));
+    result.isErr && expect(result.error).toBe(1);
   });
 });
 describe('asyncCallWithCheckedError', () => {
