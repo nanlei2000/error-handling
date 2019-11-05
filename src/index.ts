@@ -1,20 +1,24 @@
-function genLeft<V extends any, E = ErrorTypes>(value: V): Result<V, E> {
+type Ok<V extends any> = Result<V, never>;
+
+export function Ok<V extends any>(value: V): Ok<V> {
   return {
-    error: nil,
+    isErr: false,
     value: value,
     unwrapOr: (_defaultValue: V, _errorTitle?: string) => {
       return value;
     },
-    unwrapOrElse: (_cb: UnwrapOrElseCallback<E, V>) => {
+    unwrapOrElse: (_cb: UnwrapOrElseCallback<never, V>) => {
       return value;
     },
   };
 }
 
-function genRight<V extends any, E = ErrorTypes>(error: any): Result<V, E> {
+type Err<V extends any, E> = Result<V, E>;
+
+export function Err<V extends any, E = any>(error: any): Err<V, E> {
   return {
     error: error as E,
-    value: undefined,
+    isErr: true,
     unwrapOr: (defaultValue: V, errorTitle?: string) => {
       console.error(
         `${errorTitle ||
@@ -29,46 +33,59 @@ function genRight<V extends any, E = ErrorTypes>(error: any): Result<V, E> {
   };
 }
 
+type Callbacks<E, V> = (callbacks: {
+  Ok?: (value: V) => void;
+  Err?: (err: E) => void;
+}) => Result<V, E>;
+
+export function Match<V, E>(res: Result<V, E>): Callbacks<E, V> {
+  const func: Callbacks<E, V> = callbacks => {
+    if (res.isErr) {
+      callbacks.Err && callbacks.Err(res.error);
+    } else {
+      callbacks.Ok && callbacks.Ok(res.value);
+    }
+    return res;
+  };
+  return func;
+}
 /**
  * @param callback 待执行的函数
  * @description 使用值来处理错误
  */
-export const call = <V extends any, E = ErrorTypes>(
+export const call = <V extends any, E = any>(
   callback: () => V
 ): Result<V, E> => {
   try {
     const value = callback();
-    return genLeft<V, E>(value);
+    return Ok<V>(value);
   } catch (error) {
-    return genRight<V, E>(error);
+    return Err<V, E>(error);
   }
 };
 
-export const callAsync = async <V extends any, E = ErrorTypes>(
-  callback: () => Promise<V>
+export const callAsync = async <V extends any, E = any>(
+  task: PromiseLike<V>
 ): Promise<Result<V, E>> => {
   try {
-    const value = await callback();
-    return genLeft<V, E>(value);
+    const value = await task;
+    return Ok<V>(value);
   } catch (error) {
-    return genRight<V, E>(error);
+    return Err<V, E>(error);
   }
 };
 
-export const nil = Symbol('nil');
-// 因为可以 throw 任何值
-type ErrorTypes = string | number | boolean | object | undefined | null;
 type UnwrapOr<V> = (value: V, errorTitle?: string) => V;
 type UnwrapOrElseCallback<E, V> = (error: E) => V;
 type UnwrapOrElse<V, E> = (callback: UnwrapOrElseCallback<E, V>) => V;
-export type Result<V, E = ErrorTypes> = (
+export type Result<V, E = any> = (
   | {
-      error: typeof nil;
+      isErr: false;
       value: V;
     }
   | {
+      isErr: true;
       error: E;
-      value: undefined;
     }) & {
   unwrapOr: UnwrapOr<V>;
   unwrapOrElse: UnwrapOrElse<V, E>;
