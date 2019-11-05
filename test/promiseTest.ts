@@ -1,9 +1,9 @@
 import { Result, tryCatch, Ok, Err } from '../src/index';
 import * as assert from 'assert';
 
-const res: Result<number, Error> = call(() => JSON.parse('\\'));
+const res: Result<number, Error> = tryCatch(() => JSON.parse('\\'));
 
-if (res.isErr !== false) {
+if (res.isErr === true) {
   // value is `undefined` here
   console.error(res.error);
 } else {

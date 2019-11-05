@@ -11,6 +11,7 @@
 - safe and type safe access nested properties
 
 ```typescript
+import { tryCatch } from "@nanlei/error-handling";
 const object: {
   a?: {
     b?: {
@@ -19,15 +20,16 @@ const object: {
   };
 } = {};
 
-const value = call(() => object!.a!.b!.c!).unwrapOr('ok'); // ok
+const value = tryCatch(() => object!.a!.b!.c!).unwrapOr('ok'); // ok;
 ```
 
-- compare to `nil` to narrow the `Result` type
+- narrow the `Result` type
 
 ```typescript
-import { nil, Result } from '../src/index';
-const res: Result<number, Error> = call(() => JSON.parse('\\'));
-if (res.error !== nil) {
+import { Result } from '@nanlei/error-handling';
+const res: Result<number, Error> = tryCatch(() => JSON.parse('\\'));
+
+if (res.isErr === true) {
   // value is `undefined` here
   console.error(res.error);
 } else {
@@ -40,7 +42,7 @@ if (res.error !== nil) {
 
 ```typescript
 function mayFail(): Result<number, Error> {
-  return call(() => {
+ return tryCatch(() => {
     if (Math.random() < 0.5) {
       return 0;
     } else {
@@ -48,4 +50,19 @@ function mayFail(): Result<number, Error> {
     }
   });
 }
+```
+- Use `Match`
+
+```typescript
+import { tryCatch, Match } from "@nanlei/error-handling";
+
+const result = tryCatch(() => {
+  return 1 + 1;
+});
+Match(result)({
+  Ok: value => {
+    console.log(value);
+  },
+  Err: (err) => console.error(err)
+});
 ```
